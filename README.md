@@ -289,9 +289,6 @@ Este proyecto tiene un frontend complementario desarrollado en Angular:
 - El token JWT tiene una expiración configurable en `appsettings.json`
 - Los logs se almacenan en la carpeta `/Utils/log`
 
-## 🤝 Contribución
-
-Este es un proyecto de prueba técnica. Para mejoras o sugerencias, por favor abre un issue o pull request.
 
 ## 📄 Licencia
 
@@ -299,7 +296,7 @@ Este proyecto fue desarrollado como parte de una prueba técnica para OnOff Solu
 
 ## 👤 Autor
 
-**Andrés Juan Maldonado**
+**Juan Maldonado**
 - GitHub: [@JuanMaldonado95](https://github.com/JuanMaldonado95)
 
 ---
