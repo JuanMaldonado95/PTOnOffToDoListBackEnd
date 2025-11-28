@@ -85,7 +85,7 @@ PTOnOffToDoListBackEnd/
 
 Antes de comenzar, asegúrate de tener instalado:
 
-1. **Visual Studio 2022** (recomendado) o Visual Studio Code
+1. **Visual Studio 2022** (recomendado)
 2. **.NET 9 SDK** - [Descargar aquí](https://dotnet.microsoft.com/download/dotnet/9.0)
 3. **SQL Server** (2019 o superior)
 4. **SQL Server Management Studio (SSMS)** - Versión 18 o superior
