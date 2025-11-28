@@ -1,71 +1,124 @@
-# PruebaTecnica OnOffSolucionesDigitales 
+# PruebaTecnica OnOffSolucionesDigitales - Backend
 
-Este proyecto es la solución desarrollada para la prueba técnica .net, cuyo objetivo principal es **evaluar las habilidades técnicas en Angular y .NET 9**, incluyendo arquitectura, gestión de estados, optimización e integración de APIs.
+API RESTful desarrollada con .NET 9 para una aplicación de gestión de tareas (To-Do List) con autenticación JWT. Este proyecto demuestra la implementación de Clean Architecture, buenas prácticas de desarrollo y patrones de diseño modernos.
 
-El proyecto implementa una aplicación completa de **Lista de Tareas (To-Do List)** que cumple con los siguientes requisitos funcionales:
+## 📋 Tabla de Contenidos
 
-* **Autenticación:** Implementación de un flujo de Inicio de Sesión (Login) con autenticación basada en JWT a través de la API de .NET 9.
-* **Gestión de Tareas (CRUD):** Funcionalidad completa para ver, agregar, editar, eliminar y marcar tareas como completadas/pendientes.
-* **Dashboard:** Visualización de métricas clave (total, completadas, pendientes).
-* **Notificaciones:** Retroalimentación al usuario mediante mensajes de éxito o error.
+- [Características](#características)
+- [Arquitectura](#arquitectura)
+- [Tecnologías](#tecnologías)
+- [Prerrequisitos](#prerrequisitos)
+- [Instalación](#instalación)
+- [Configuración de Base de Datos](#configuración-de-base-de-datos)
+- [Ejecución](#ejecución)
+- [Pruebas](#pruebas)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [API Endpoints](#api-endpoints)
+- [Frontend](#frontend)
 
-________________________________________________________________________________________________________________________________________________________________________
+## ✨ Características
 
-### Arquitectura del Backend (.NET 9)
+- **Autenticación JWT**: Sistema seguro de autenticación sin estado
+- **CRUD Completo**: Gestión completa de tareas (crear, leer, actualizar, eliminar)
+- **Dashboard**: Métricas de tareas.
+- **Validación de Datos**: Validación automática mediante Data Annotations
+- **Manejo de Errores**: Sistema robusto de control de excepciones y logging
+- **Testing**: Suite de pruebas unitarias con xUnit
+- **Documentación API**: Swagger/OpenAPI integrado
 
-| Requisito Técnico | Decisión Implementada | Justificación |
-| :--- | :--- | :--- |
-| **Estructura Base** | Arquitectura de Múltiples Capas (Clean Architecture). Proyectos de clase: | La lógica de negocio reside en ApplicationCore, el acceso a datos en Infrastructure, y la capa de presentación/API en WebAPI. Facilita el mantenimiento, testing y la escalabilidad. |
-| **Autenticación** | **JSON Web Tokens (JWT)** | Estándar de la industria para autenticación sin estado (stateless), ideal para APIs RESTful. El token se genera al hacer login y se valida en cada request. |
-| **Acceso a Datos** | **Entity Framework Core** | Utilizado con un patrón de Repositorio. Esto abstrae la lógica de la base de datos y facilita el testing (mediante la inyección de repositorios simulados). |
-| **Validación de Datos** | **Data Annotations** Carpeta de modelos para la validación automática del modelo en los Controladores. | Garantiza que los datos recibidos por los *endpoints* cumplan con las reglas de negocio antes de procesarse. |
-| **Manejo de Errores** | Control Explícito de Errores (try-catch y retorno de códigos HTTP específicos). | Se implementa try-catch en la lógica de negocio para capturar errores de manera granular y asegurar que el backend responda con códigos de estado HTTP semánticos (ej. 400 Bad Request, 404 Not Found, 500 Internal Server Error) y mensajes claros. |
-| Sistema de Logs | Archivo utils/log dedicado | Centraliza el manejo de errores (logging) y mensajes de depuración, permitiendo una trazabilidad eficiente y desacoplando la presentación del manejo de excepciones.
+## 🏗️ Arquitectura
 
-________________________________________________________________________________________________________________________________________________________________________
+El proyecto implementa **Clean Architecture** organizada en múltiples capas:
 
-###  SQL Server con SQL Server Management Studio 21
+```
+PTOnOffToDoListBackEnd/
+├── ApplicationCore/        # Lógica de negocio y entidades
+│   ├── Entities/
+│   ├── Interfaces/
+|   ├── Models/
+├── Infrastructure/         # Acceso a datos y servicios externos
+│   ├── Data/
+│   └── Services/
+└── WebApiPTBackOnOff/     # Capa de presentación (API)
+|   ├── Controllers/
+|   └── Utils/
+├── WebApiPTBackOnOff.Shared/   # Capa de compartidos para las demas capas
+│   ├── Utils/
+├── OnOffXUnitTesting/  # Capa de Pruebas
+```
 
-| Requisito Técnico | Decisión Implementada | Justificación |
-| :--- | :--- | :--- |
-| **Organización Lógica** | Uso de Esquemas (Auth y Tasks) | Facilita la separación de la información sensible (Autenticación) de la lógica de negocio (Tareas), mejorando la seguridad y la modularidad.
-| **Unicidad de Cuentas** | Restricción UNIQUE en Auth.tblUser.tUserName | Garantiza que no existan nombres de usuario duplicados, manteniendo la integridad del subsistema de autenticación.
-| **Integridad Referencial** | Relación 1:M con ON DELETE CASCADE | Asegura que al eliminar un registro principal (Usuario), todos los registros dependientes (Tareas) se eliminen automáticamente.
-| **Auditoría Básica** | Columna dtDateTimeRegister con DEFAULT GETDATE() | Permite registrar automáticamente la fecha y hora de inserción de cualquier fila sin requerir lógica en el Backend.
-| **Identificadores** | Uso de IDENTITY(1,1) | Implementación de claves primarias autoincrementables estándar para un manejo simple y eficiente de las filas.
+### Decisiones de Arquitectura
 
-________________________________________________________________________________________________________________________________________________________________________
+| Aspecto | Implementación | Justificación |
+|---------|----------------|---------------|
+| **Estructura** | Clean Architecture (Multicapa) | Separación de responsabilidades, facilita testing y mantenimiento |
+| **Autenticación** | JWT (JSON Web Tokens) | Estándar de la industria para APIs RESTful sin estado |
+| **ORM** | Entity Framework Core | Abstracción de base de datos con patrón Repository |
+| **Logging** | Sistema centralizado en `/utils/log` | Trazabilidad eficiente y debugging |
+| **Testing** | xUnit | Framework robusto para pruebas unitarias en .NET |
 
-### Prerrequisitos Tecnicos
+## 🗄️ Base de Datos
 
-Lista de las principales tecnologías y versiones.
+**SQL Server** con arquitectura basada en esquemas:
 
-* **Editor de Código:** Se recomienda Visual Studio 2022 para BackEnd.
+- **Esquema `Auth`**: Gestión de usuarios y autenticación
+- **Esquema `Tasks`**: Gestión de tareas
 
-* **Servidor SQL Server:** Con las credenciales necesarias para conexión.
+### Características de la BD
 
-* **SDK de .NET 9:** Necesario para compilar y ejecutar el backend.
-    * [Descargar .NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (Enlace de ejemplo, el enlace final debe ser verificado al momento del lanzamiento oficial de .NET 9).
+- Restricciones `UNIQUE` en nombres de usuario
+- Relación 1:N con `ON DELETE CASCADE`
+- Auditoría automática con `dtDateTimeRegister`
+- Claves primarias auto-incrementales (`IDENTITY`)
 
-________________________________________________________________________________________________________________________________________________________________________
+## 🛠️ Tecnologías
 
-### Creación de la Base de Datos
+- **.NET 9 SDK**
+- **ASP.NET Core Web API**
+- **Entity Framework Core**
+- **SQL Server** (2019 o superior)
+- **JWT Authentication**
+- **xUnit** (Testing)
+- **Swagger/OpenAPI**
 
-Pasos para la Configuración Inicial de la Base de Datos
+## 📦 Prerrequisitos
 
-Para que la aplicación funcione correctamente, es necesario preparar la base de datos y registrar un usuario inicial. Sigue estos pasos en este orden:
+Antes de comenzar, asegúrate de tener instalado:
 
-1. Crear la Base de Datos y Tablas: Ejecuta el 'SCRIPT DE CREACIÓN DE BASE DE DATOS SQL' script completo que te pongo mas abajo en SQL Server Management Studio.
-   
-3. Registrar el Usuario Inicial: Una vez creada la base de datos, ejecuta este script 'SCRIPT PARA CREAR EL REGISTRO EN LA TABLA' que te adjunto mas abajo:
-    - Este usuario es el unico de momento que permite acceso.
-      
-        usuario: user@test.com
-        Contraseña: 123456
-________________________________________________________________________________________________________________________________________________________________________
+1. **Visual Studio 2022** (recomendado) o Visual Studio Code
+2. **.NET 9 SDK** - [Descargar aquí](https://dotnet.microsoft.com/download/dotnet/9.0)
+3. **SQL Server** (2019 o superior)
+4. **SQL Server Management Studio (SSMS)** - Versión 18 o superior
 
--- SCRIPT DE CREACIÓN DE BASE DE DATOS SQL 
+## 🚀 Instalación
 
+### 1. Clonar el Repositorio
+
+```bash
+git clone https://github.com/JuanMaldonado95/PTOnOffToDoListBackEnd.git
+cd PTOnOffToDoListBackEnd
+```
+
+### 2. Restaurar Dependencias
+
+```bash
+dotnet restore
+```
+
+### 3. Compilar el Proyecto
+
+```bash
+dotnet build
+```
+
+## 💾 Configuración de Base de Datos
+
+### Paso 1: Crear la Base de Datos
+
+Ejecuta el siguiente script en **SQL Server Management Studio**:
+
+```sql
+-- Crear base de datos
 IF NOT EXISTS (SELECT name FROM master.sys.databases WHERE name = N'DBPTOnOff')
 BEGIN
     CREATE DATABASE [DBPTOnOff];
@@ -75,6 +128,7 @@ GO
 USE [DBPTOnOff];
 GO
 
+-- Crear esquemas
 IF NOT EXISTS (SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'Auth')
     EXEC('CREATE SCHEMA Auth');
 GO
@@ -83,6 +137,7 @@ IF NOT EXISTS (SELECT schema_name FROM information_schema.schemata WHERE schema_
     EXEC('CREATE SCHEMA Tasks');
 GO
 
+-- Tabla de usuarios
 IF OBJECT_ID('Auth.tblUser', 'U') IS NOT NULL 
     DROP TABLE Auth.tblUser; 
 
@@ -94,6 +149,7 @@ CREATE TABLE Auth.tblUser (
 );
 GO
 
+-- Tabla de tareas
 IF OBJECT_ID('Tasks.tblTask', 'U') IS NOT NULL 
     DROP TABLE Tasks.tblTask; 
 
@@ -103,54 +159,149 @@ CREATE TABLE Tasks.tblTask (
     tTitle NVARCHAR(512) NOT NULL,
     bIsCompleted BIT NOT NULL DEFAULT 0,
     dtDateTimeRegister DATETIME NOT NULL DEFAULT GETDATE(),
-
     CONSTRAINT FK_Task_User 
         FOREIGN KEY (iIDUser) 
         REFERENCES Auth.tblUser(iIDUser) 
         ON DELETE CASCADE
 );
 GO
+```
 
-________________________________________________________________________________________________________________________________________________________________________
+### Paso 2: Insertar Usuario de Prueba
 
--- SCRIPT PARA CREAR EL REGISTRO EN LA TABLA
-
-use [DBPTOnOff]
+```sql
+USE [DBPTOnOff]
+GO
 
 INSERT INTO Auth.tblUser (tUserName, tPasswordHash)
 VALUES ('user@test.com', 'E10ADC3949BA59ABBE56E057F20F883E');
+GO
+```
 
-________________________________________________________________________________________________________________________________________________________________________
+**Credenciales de acceso:**
+- **Usuario**: `user@test.com`
+- **Contraseña**: `123456`
 
-### Ejecución del Backend
+### Paso 3: Configurar Cadena de Conexión
 
-1.  **Restaurar Dependencias y Compilar:** (Desde el directorio raíz de la solución `.sln`):
-    ```bash
-    dotnet restore
-    dotnet build
-    ```
-    
-2. Configurar la cadena de conexión en `appsettings.json`, reemplazando el nombre del servidor por el de tu instancia de SQL Server:
+Edita el archivo `appsettings.json` en el proyecto `WebApiPTBackOnOff`:
+
+```json
+{
   "ConnectionStrings": {
-    "SQLServerConnection": "Server=JUANMALDONADO;Database=DBPTOnOff;Integrated Security=True;TrustServerCertificate=True"
-   }
-   
-4. **Ejecutar la API:** (Navegue a la carpeta del proyecto `WebApiPTBackOnOff` o use el comando a nivel de solución):
-    ```bash
-    dotnet run --project WebApiPTBackOnOff
-    ```
-    *La API estará disponible en **`https://localhost:44363`** (o el puerto configurado). Puede acceder a la documentación de Swagger en esta dirección.*
+    "SQLServerConnection": "Server=TU_SERVIDOR;Database=DBPTOnOff;Integrated Security=True;TrustServerCertificate=True"
+  }
+}
+```
 
-5. Guardar La dirección del puerto es importante para la ejecución de los servicios del Front en esta versión local, [https://github.com/JuanMaldonado95/PTOnOffToDoListFrontEnd]
+**Reemplaza `TU_SERVIDOR`** con el nombre de tu instancia de SQL Server (ej. `localhost`, `.\SQLEXPRESS`, etc.)
 
-________________________________________________________________________________________________________________________________________________________________________
+## ▶️ Ejecución
 
-##  Cómo Ejecutar las Pruebas Unitarias realizadas en xUnit
+### Opción 1: Desde Visual Studio Code
 
-Se han escrito pruebas unitarias (con xUnit de testing de .NET) para al menos un controlador y un servicio, garantizando la cobertura de la lógica de negocio.
+1. Abre la solución `PTOnOffToDoListBackEnd.sln`
+2. Establece `WebApiPTBackOnOff` como proyecto de inicio
+3. Presiona **F5** o haz clic en el botón **Run**
 
-1.  **Navegar al Directorio de Solución** (donde se encuentra el archivo `.sln`).
-2.  **Ejecutar Pruebas Unitarias:** : Para la ejución puedes navegar al menú superior: Pruebas (Test) > Explorador de Pruebas (Test Explorer) y ejecutar todas las pruebas o las que desee ó ejecutar el siguiente comando:
-    ```bash
-    dotnet test
-    ```
+### Opción 2: Desde la Terminal
+
+```bash
+cd WebApiPTBackOnOff
+dotnet run
+```
+
+La API estará disponible en: **https://localhost:44363**
+
+### Documentación Swagger
+
+Una vez iniciada la aplicación, accede a la documentación interactiva:
+
+```
+https://localhost:44363/swagger
+```
+
+## 🧪 Pruebas
+
+El proyecto incluye pruebas unitarias con **xUnit** que cubren controladores y servicios.
+
+### Ejecutar todas las pruebas
+
+```bash
+dotnet test
+```
+
+### Ejecutar pruebas con cobertura detallada
+
+```bash
+dotnet test --verbosity detailed
+```
+
+### Desde Visual Studio Code
+
+1. Menú **Pruebas** > **Explorador de Pruebas**
+2. Haz clic en **Ejecutar todas las pruebas**
+
+## 🔌 API Endpoints
+
+### Autenticación
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Autenticación de usuario |
+
+### Tareas
+
+| Método | Endpoint | Descripción | Autenticación |
+|--------|----------|-------------|---------------|
+| GET | `/api/tasks` | Listar todas las tareas del usuario | ✅ |
+| POST | `/api/tasks` | Crear nueva tarea | ✅ |
+| PUT | `/api/tasks/{id}` | Actualizar tarea | ✅ |
+| DELETE | `/api/tasks/{id}` | Eliminar tarea | ✅ |
+| GET | `/api/tasks/dashboard` | Obtener métricas | ✅ |
+
+### Ejemplo de Request
+
+```bash
+# Login
+curl -X POST https://localhost:44363/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"userName":"user@test.com","password":"123456"}'
+
+# Crear tarea (requiere token JWT)
+curl -X POST https://localhost:44363/api/tasks \
+  -H "Authorization: Bearer {tu_token}" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Mi primera tarea"}'
+```
+
+## 💻 Frontend
+
+Este proyecto tiene un frontend complementario desarrollado en Angular:
+
+**Repositorio**: [PTOnOffToDoListFrontEnd](https://github.com/JuanMaldonado95/PTOnOffToDoListFrontEnd)
+
+**Nota importante**: Asegúrate de que el backend esté corriendo en `https://localhost:44363` antes de iniciar el frontend.
+
+## 📝 Notas Adicionales
+
+- El hash de la contraseña en la base de datos utiliza **MD5** (para propósitos de demostración). En producción se recomienda usar **bcrypt** o **Argon2**.
+- El token JWT tiene una expiración configurable en `appsettings.json`
+- Los logs se almacenan en la carpeta `/Utils/log`
+
+## 🤝 Contribución
+
+Este es un proyecto de prueba técnica. Para mejoras o sugerencias, por favor abre un issue o pull request.
+
+## 📄 Licencia
+
+Este proyecto fue desarrollado como parte de una prueba técnica para OnOff Soluciones Digitales.
+
+## 👤 Autor
+
+**Andrés Juan Maldonado**
+- GitHub: [@JuanMaldonado95](https://github.com/JuanMaldonado95)
+
+---
+
+**¿Necesitas ayuda?** Si encuentras algún problema durante la instalación o ejecución, por favor abre un issue en el repositorio.
